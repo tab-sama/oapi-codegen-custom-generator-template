@@ -1,4 +1,26 @@
-// TODO: Replace with your own module path (e.g., github.com/yourusername/yourproject)
-module github.com/xurvan/go-template
+module github.com/tab-sama/oapi-codegen-custom-generator-template
 
 go 1.24.5
+
+require (
+	github.com/joho/godotenv v1.5.1
+	github.com/kelseyhightower/envconfig v1.4.0
+	github.com/oapi-codegen/oapi-codegen/v2 v2.5.0
+)
+
+require (
+	github.com/dprotaso/go-yit v0.0.0-20220510233725-9ba8df137936 // indirect
+	github.com/getkin/kin-openapi v0.132.0 // indirect
+	github.com/go-openapi/jsonpointer v0.21.2 // indirect
+	github.com/go-openapi/swag v0.23.1 // indirect
+	github.com/josharian/intern v1.0.0 // indirect
+	github.com/mailru/easyjson v0.9.0 // indirect
+	github.com/mohae/deepcopy v0.0.0-20170929034955-c48cc78d4826 // indirect
+	github.com/oasdiff/yaml v0.0.0-20250309154309-f31be36b4037 // indirect
+	github.com/oasdiff/yaml3 v0.0.0-20250309153720-d2182401db90 // indirect
+	github.com/perimeterx/marshmallow v1.1.5 // indirect
+	github.com/speakeasy-api/jsonpath v0.6.0 // indirect
+	github.com/speakeasy-api/openapi-overlay v0.10.2 // indirect
+	github.com/vmware-labs/yaml-jsonpath v0.3.2 // indirect
+	gopkg.in/yaml.v3 v3.0.1 // indirect
+)

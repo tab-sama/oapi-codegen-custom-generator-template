@@ -1,36 +1,28 @@
-// Package config manages application configuration with environment variable support.
+// Package config handles application configuration loading.
 package config
 
 import (
-	"log/slog"
-	"os"
-	"strings"
+	"log"
+
+	"github.com/joho/godotenv"
+	"github.com/kelseyhightower/envconfig"
 )
 
-// Config holds application configuration settings including logging.
+// Config holds all application configuration values.
 type Config struct {
-	LogLevel slog.Level
+	FilePath string `default:"./api/openapi.yml" envconfig:"FILE_PATH"`
 }
 
-// New creates a Config with default settings and optional LOG_LEVEL env override (DEBUG/INFO/WARN/ERROR).
-func New() *Config {
-	cfg := &Config{
-		LogLevel: slog.LevelInfo, // Default log level
+// Load reads configuration from environment variables and returns a Config instance.
+func Load() *Config {
+	_ = godotenv.Load()
+
+	var cfg Config
+
+	err := envconfig.Process("", &cfg)
+	if err != nil {
+		log.Fatalf("Failed to load server config: %s", err)
 	}
 
-	// Check for LOG_LEVEL environment variable
-	if logLevel := os.Getenv("LOG_LEVEL"); logLevel != "" {
-		switch strings.ToUpper(logLevel) {
-		case "DEBUG":
-			cfg.LogLevel = slog.LevelDebug
-		case "INFO":
-			cfg.LogLevel = slog.LevelInfo
-		case "WARN":
-			cfg.LogLevel = slog.LevelWarn
-		case "ERROR":
-			cfg.LogLevel = slog.LevelError
-		}
-	}
-
-	return cfg
+	return &cfg
 }
