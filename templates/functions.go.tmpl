@@ -1,0 +1,12 @@
+// Generated functions from OpenAPI specification
+
+package main
+
+import "log"
+
+{{range .}}
+// {{.OperationID}} handles {{.Method}} {{.Path}}
+func {{.OperationID}}() {
+	log.Println("{{.LogMessage}}")
+}
+{{end}}
