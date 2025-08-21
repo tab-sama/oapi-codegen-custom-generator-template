@@ -1,70 +1,111 @@
-# 🚀 Go Project Template
+# 🚀 Custom oapi-codegen Generator Template
 
 [![Go Version](https://img.shields.io/badge/Go-1.24.5-blue.svg)](https://golang.org/doc/devel/release.html)
 [![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
-> **Note**: This is a GitHub template repository. Use this template to create a new Go project with a standardized structure and tooling.
+> **Note**: This is a GitHub template repository that demonstrates how to create custom code generators using [oapi-codegen](https://github.com/oapi-codegen/oapi-codegen) with Go templates.
 
-## 📋 How to Use This Template
+## 📋 About This Template
 
-1. Click the "Use this template" button at the top of this repository page
-2. Name your project and provide a description
-3. Clone your new repository
-4. Customize the project by:
-   - Updating this README with your project name and description
-   - Modifying the code in `cmd/main.go` to implement your application
-   - Updating the `go.mod` file with your module path
+This project shows how to build custom code generators that process OpenAPI specifications using oapi-codegen as a foundation and Go templates to define the generated code output. Instead of generating standard client/server boilerplate, you can create completely custom code tailored to your specific needs.
 
-## 📚 About This Template
+## 🎯 What This Template Demonstrates
 
-- This template adopts the [Standard Go Project Layout](https://github.com/golang-standards/project-layout) for a clean
-  and organized codebase.
+- **Custom Code Generation**: Generate any type of code from OpenAPI specs using Go templates
+- **Template-Based Approach**: Use Go's `text/template` package to define exactly what code to generate
+- **Flexible Configuration**: Easy configuration through environment variables
+- **Real Example**: Working example that generates Go functions from a User Management API
 
-- We recommend following the guidelines outlined in [Effective Go](https://go.dev/doc/effective_go). Most formatting can
-  be automatically handled using the `go fmt` tool.
+## 🏗️ Project Structure
 
-- For projects involving API design, we highly recommend referring to the
-  [Google API Design Guide](https://cloud.google.com/apis/design) for best practices.
-
-- This template uses [Moonrepo](https://moonrepo.dev/) as its primary build system. Moonrepo provides consistent tooling,
-  task running, and dependency management across the project.
-
-## 🔧 Setup
-
-### Using Moonrepo (Recommended)
-
-To set up the project with Moonrepo:
-
-```shell
-# Install Moonrepo's proto tool if you don't have it
-curl -fsSL https://moonrepo.dev/install/proto.sh | bash
-
-# Install required tools and dependencies
-proto use
-moon :setup
+```
+├── cmd/generate/main.go          # Entry point for the code generator
+├── internal/
+│   ├── config/config.go          # Configuration management
+│   └── generator/generator.go    # Core generation logic
+├── templates/
+│   └── functions.go.tmpl         # Go template defining the output format
+├── api/
+│   └── openapi.yml              # Sample OpenAPI specification
+└── README.md                    # This file
 ```
 
-### Using Make (Compatibility)
+## 🔧 How It Works
 
-A Makefile is provided for compatibility with traditional workflows, but it's just a wrapper around Moonrepo commands:
+1. **Load OpenAPI Spec**: Uses `oapi-codegen/pkg/util.LoadSwagger()` to parse the OpenAPI specification
+2. **Extract Data**: Processes the spec to extract operations (GET, POST, PUT, DELETE) and their details
+3. **Apply Templates**: Uses Go templates to generate custom code based on the extracted data
+4. **Output Generation**: Produces the final code according to your template definitions
 
-```shell
-make install
+### Example Output
+
+Given the sample OpenAPI spec, the generator creates Go functions like:
+
+```go
+// Generated functions from OpenAPI specification
+
+package main
+
+import "log"
+
+// listUsers handles GET /users
+func listUsers() {
+	log.Println("read only")
+}
+
+// createUser handles POST /users
+func createUser() {
+	log.Println("write only")
+}
+
+// getUserByID handles GET /users/{id}
+func getUserByID() {
+	log.Println("read only")
+}
+
+// updateUser handles PUT /users/{id}
+func updateUser() {
+	log.Println("write only")
+}
+
+// deleteUser handles DELETE /users/{id}
+func deleteUser() {
+	log.Println("write only")
+}
 ```
 
-### Manual Setup
+## 🚀 Getting Started
 
-You can also manually install dependencies with:
+### Prerequisites
 
-```shell
-go mod download
-```
+- Go 1.24.5 or later
+- (Optional) [Moonrepo](https://moonrepo.dev/) for enhanced build tooling
 
-### Running the Code
+### Setup
 
-To run the code:
+1. **Use this template** by clicking "Use this template" button on GitHub
+2. **Clone your new repository**:
+   ```bash
+   git clone <your-repo-url>
+   cd <your-repo-name>
+   ```
 
-```shell
+3. **Install dependencies**:
+   ```bash
+   # Using Moonrepo (recommended)
+   proto use
+   moon :setup
+
+   # Using Make
+   make install
+
+   # Using Go directly
+   go mod download
+   ```
+
+### Running the Generator
+
+```bash
 # Using Moonrepo
 moon :run
 
@@ -72,57 +113,102 @@ moon :run
 make run
 
 # Using Go directly
-go run ./cmd
+go run ./cmd/generate
+
+# With custom OpenAPI spec
+FILE_PATH=./path/to/your/openapi.yml go run ./cmd/generate
 ```
 
-## 🔨 Build
+## 🛠️ Customization
 
-### Using Moonrepo (Recommended)
+### 1. Modify the Template
 
-To build the project with Moonrepo:
+Edit `templates/functions.go.tmpl` to change the generated code format. The template receives an array of `OperationData` structs:
 
-```shell
-moon :build
+```go
+type OperationData struct {
+    OperationID string  // e.g., "listUsers"
+    Method      string  // e.g., "GET"
+    Path        string  // e.g., "/users"
+    LogMessage  string  // e.g., "read only"
+}
 ```
 
-The binary file will be created in the `bin` directory.
+### 2. Extend the Generator
 
-### Using Make (Compatibility)
+Modify `internal/generator/generator.go` to:
+- Extract additional data from the OpenAPI spec
+- Process different parts of the specification (schemas, parameters, etc.)
+- Add custom logic for your specific use case
 
-You can also use Make, which will call the Moonrepo build command:
+### 3. Add More Templates
 
-```shell
-make
-# or
-make build
+Create additional template files and modify the generator to use them:
+
+```go
+// Example: Add multiple templates
+clientTmpl, _ := template.ParseFiles("templates/client.go.tmpl")
+serverTmpl, _ := template.ParseFiles("templates/server.go.tmpl")
 ```
 
-## 🛠️ Available Commands
+### 4. Configuration Options
+
+Add more configuration options in `internal/config/config.go`:
+
+```go
+type Config struct {
+    FilePath     string `default:"./api/openapi.yml" envconfig:"FILE_PATH"`
+    OutputDir    string `default:"./generated" envconfig:"OUTPUT_DIR"`
+    PackageName  string `default:"generated" envconfig:"PACKAGE_NAME"`
+}
+```
+
+## 📝 Example Use Cases
+
+- **API Client Generators**: Generate custom HTTP clients
+- **Mock Generators**: Create mock implementations for testing
+- **Documentation**: Generate custom API documentation
+- **Validation Code**: Create request/response validators
+- **Database Models**: Generate database models from schemas
+- **Configuration Files**: Generate config files for other tools
+
+## 🔨 Available Commands
 
 ### Moonrepo Commands
 
-The project defines several tasks in the `moon.yml` file:
-
-- `moon :setup` - Set up the project dependencies
-- `moon :clean` - Clean build artifacts
-- `moon :format` - Format the code
-- `moon :lint` - Lint the code
-- `moon :test` - Run tests
+- `moon :setup` - Set up project dependencies
+- `moon :run` - Run the code generator
 - `moon :build` - Build the project
-- `moon :run` - Run the application
+- `moon :test` - Run tests
+- `moon :lint` - Lint the code
+- `moon :format` - Format the code
+- `moon :clean` - Clean build artifacts
 
 ### Make Commands
 
-The Makefile provides the following commands (all of which call the corresponding Moonrepo commands):
+- `make install` - Install tools and dependencies
+- `make run` - Run the code generator
+- `make build` - Build the project
+- `make test` - Run tests
+- `make lint` - Lint the code
+- `make format` - Format the code
+- `make clean` - Clean build artifacts
 
-```shell
-make help     # Show available commands
-make install  # Install tools and dependencies
-make clean    # Clean build artifacts
-make format   # Format the code
-make lint     # Lint the code
-make test     # Run tests
-make build    # Build the project
-make run      # Run the application
-make          # Equivalent to 'make clean build'
-```
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add some amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
+
+## 📚 Resources
+
+- [oapi-codegen Documentation](https://github.com/oapi-codegen/oapi-codegen)
+- [Go Templates Documentation](https://pkg.go.dev/text/template)
+- [OpenAPI Specification](https://swagger.io/specification/)
+- [Standard Go Project Layout](https://github.com/golang-standards/project-layout)
+
+## 📄 License
+
+This project is licensed under the Apache License 2.0 - see the [LICENSE](LICENSE) file for details.
